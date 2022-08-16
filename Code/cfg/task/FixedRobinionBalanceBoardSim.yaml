@@ -1,0 +1,130 @@
+# used to create the object
+name: FixedRobinionBalanceBoardSim
+ 
+physics_engine: ${..physics_engine}
+
+debug_mode: False
+tolerance_disturbance_mode: False
+board_pitch_mode: False
+# if given, will override the device setting in gym.
+env: 
+#  numEnvs: ${...num_envs}
+  actor: robinion
+  numEnvs: ${resolve_default:512,${...num_envs}}
+  envSpacing: 1.25
+  maxEpisodeLength: 1000
+
+  reset:
+    min_height: 0.06
+    max_height: 0.06
+    robot_roller_reset_offset: 0.56
+
+  clipActions: 1.0
+
+  plane:
+    staticFriction: 1.0
+    dynamicFriction: 1.0
+    restitution: 0.0
+
+  # set to True if you use camera sensors in the environment
+  enableCameraSensors: False
+  
+  reward_weight: 20.0
+  reset_height_threshold: 0.35
+
+robot:
+  control_mode: parallel_pitch
+  controlled_joints: legs_shoulder_roll
+  joints_list: 
+    free:
+      all_joints: ["head_pitch_joint", "head_yaw_joint", "l_ankle_pitch_joint", "l_ankle_roll_joint", "l_elbow_pitch_joint", "l_elbow_yaw_joint",
+                  "l_hip_pitch_joint", "l_hip_roll_joint", "l_hip_yaw_joint", "l_knee_pitch_joint", "l_shoulder_pitch_joint", "l_shoulder_roll_joint",
+                  "r_ankle_pitch_joint", "r_ankle_roll_joint", "r_elbow_pitch_joint", "r_elbow_yaw_joint", "r_hip_pitch_joint", "r_hip_roll_joint",
+                  "r_hip_yaw_joint", "r_knee_pitch_joint", "r_shoulder_pitch_joint", "r_shoulder_roll_joint", "torso_pitch_joint"]
+
+      legs_only: ["l_hip_roll_joint", "l_hip_pitch_joint", "l_knee_pitch_joint", "l_ankle_pitch_joint","r_hip_roll_joint", "r_hip_pitch_joint",
+                  "r_knee_pitch_joint", "r_ankle_pitch_joint", "l_ankle_roll_joint", "r_ankle_roll_joint"]
+
+    parallel_pitch:
+      all_joints: ["head_pitch_joint", "head_yaw_joint", "l_ankle_pitch_joint", "l_ankle_roll_joint", "l_elbow_pitch_joint", "l_elbow_yaw_joint",
+                  "l_hip_pitch_joint", "l_hip_roll_joint", "l_hip_yaw_joint", "l_knee_pitch_joint", "l_shoulder_pitch_joint", "l_shoulder_roll_joint",
+                  "r_ankle_pitch_joint", "r_ankle_roll_joint", "r_elbow_pitch_joint", "r_elbow_yaw_joint", "r_hip_pitch_joint", "r_hip_roll_joint",
+                  "r_hip_yaw_joint", "r_knee_pitch_joint", "r_shoulder_pitch_joint", "r_shoulder_roll_joint", "torso_pitch_joint"]
+
+      legs_only: ["l_hip_roll_joint", "l_hip_pitch_joint", "l_knee_pitch_joint", "l_ankle_pitch_joint","r_hip_roll_joint", "r_hip_pitch_joint",
+                  "r_knee_pitch_joint", "r_ankle_pitch_joint", "l_ankle_roll_joint", "r_ankle_roll_joint"]
+
+      legs_shoulder_roll: ["l_hip_roll_joint", "l_hip_pitch_joint", "l_knee_pitch_joint", "l_ankle_pitch_joint", "l_shoulder_roll_joint", 
+                          "r_shoulder_roll_joint", "r_hip_roll_joint", "r_hip_pitch_joint", "r_knee_pitch_joint", "r_ankle_pitch_joint",
+                          "l_ankle_roll_joint", "r_ankle_roll_joint"]
+
+      legs_shoulder_roll_pitch: ["l_hip_roll_joint", "l_hip_pitch_joint", "l_knee_pitch_joint", "l_ankle_pitch_joint", "l_shoulder_roll_joint", 
+                                "r_shoulder_roll_joint", "r_hip_roll_joint", "r_hip_pitch_joint", "r_knee_pitch_joint", "r_ankle_pitch_joint",
+                                "l_ankle_roll_joint", "r_ankle_roll_joint", "l_shoulder_pitch_joint", r_shoulder_pitch_joint]
+
+  joint_property:
+    controlled_joints:
+      stiffness: 80.0
+      damping: 1.0
+    
+    fixed_joints: 
+      stiffness: 5000.0
+      damping: 100.0
+
+actor_param:
+  op3_param:
+    min_height: 0.5
+    max_height: 0.7
+
+  robinion_param:
+    min_height: 0.6
+    max_height: 0.9
+
+sim:
+  dt: 0.0166 # 1/60 s
+  substeps: 2
+  up_axis: "z"
+  use_gpu_pipeline: ${eq:${...pipeline},"gpu"}
+  gravity: [0.0, 0.0, -9.81]
+  physx:
+    num_threads: ${....num_threads}
+    solver_type: ${....solver_type}
+    use_gpu: ${contains:"cuda",${....sim_device}} # set to False to run on CPU
+    num_position_iterations: 4
+    num_velocity_iterations: 0
+    contact_offset: 0.02
+    rest_offset: 0.0
+    bounce_threshold_velocity: 0.2
+    max_depenetration_velocity: 10.0
+    default_buffer_size_multiplier: 5.0
+    max_gpu_contact_pairs: 8388608 # 8*1024*1024
+    num_subscenes: ${....num_subscenes}
+    contact_collection: 1 # 0: CC_NEVER (don't collect contact info), 1: CC_LAST_SUBSTEP (collect only contacts on last substep), 2: CC_ALL_SUBSTEPS (default - all contacts)
+
+task:
+  randomize: False
+  randomization_params:
+   # specify which attributes to randomize for each actor type and property
+   frequency: 600   # Define how many environment steps between generating new randomizations
+   actions:
+     range: [0.0, 0.003]
+     operation: "additive"
+     distribution: "gaussian"
+   actor_params:
+     actor:
+       color: True
+       rigid_body_properties:
+         mass: 
+           range: [0.85, 1.15]
+           operation: "scaling"
+           distribution: "uniform"
+           setup_only: True # Property will only be randomized once before simulation is started. See Domain Randomization Documentation for more info.
+       dof_properties:
+         damping: 
+           range: [0.9, 1.1]
+           operation: "scaling"
+           distribution: "uniform"
+         stiffness: 
+           range: [0.75, 1.25]
+           operation: "scaling"
+           distribution: "uniform"

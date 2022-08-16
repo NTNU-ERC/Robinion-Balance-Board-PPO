@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<robot name="roller">
+    <link name="base_link">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="/home/ntnuerc/Programming/IsaacGymPreview3/isaacgym/IsaacGymEnvs/assets/urdf/bongo_board/meshes/BongoBoard_Roller.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+        </visual>
+
+        <collision>
+            <origin rpy="1.57 0 0" xyz="0 0 0"/>
+            <geometry>
+                <!--<mesh filename="/home/ntnuerc/Programming/IsaacGymPreview3/isaacgym/IsaacGymEnvs/assets/urdf/bongo_board/meshes/BongoBoard_Roller.stl" scale="0.001 0.001 0.001"/>-->
+                <cylinder radius="0.0565" length="0.430"/>
+            </geometry>
+        </collision>
+
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" />
+            <mass value="1.473619" />
+            <inertia ixx="0.029633" ixy="0.0" ixz="0.0" iyy="0.029633" iyz="0.0" izz="0.003544"/>
+        </inertial>
+
+    </link>
+
+    
+</robot>
